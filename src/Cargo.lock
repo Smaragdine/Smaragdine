@@ -1,0 +1,11 @@
+[root]
+name = "smac"
+version = "0.0.0"
+dependencies = [
+ "libsmac 0.0.0",
+]
+
+[[package]]
+name = "libsmac"
+version = "0.0.0"
+
