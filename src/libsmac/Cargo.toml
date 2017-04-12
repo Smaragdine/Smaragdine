@@ -4,3 +4,8 @@ name = "libsmac"
 version = "0.0.0"
 
 [dependencies]
+regex = "0.2"
+
+[dependencies.nom]
+version = "^2.2"
+features = ["regexp"]
