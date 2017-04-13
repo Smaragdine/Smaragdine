@@ -1,3 +1,6 @@
+use lexer::matcher::Matcher;
+use lexer::token::{Token, TokenType, TokenPosition};
+
 #[derive(Clone, Debug)]
 struct Snapshot {
     index: usize,
@@ -77,6 +80,28 @@ impl Tokenizer {
 
     pub fn commit_snapshot(&mut self) {
         self.snapshots.pop();
+    }
+
+    pub fn try_match_token(&mut self, matcher: &Matcher) -> Option<Token> {
+        if self.end() {
+            return Some(
+                Token::new(TokenType::EOF, TokenPosition::new(self.index, self.index), "".to_string()),
+            )
+        }
+
+        self.take_snapshot();
+
+        match matcher.try_match(self) {
+            Some(t) => {
+                self.commit_snapshot();
+                Some(t)
+            },
+
+            None => {
+                self.rollback_snapshot();
+                None
+            },
+        }
     }
 
     // Immutable access
