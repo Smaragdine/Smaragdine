@@ -100,3 +100,43 @@ impl Matcher for Symbol {
         None
     }
 }
+
+pub struct Identifier {}
+
+impl Matcher for Identifier {
+    fn try_match(
+        &self,
+        tokenizer: &mut Tokenizer
+    ) -> Option<Token> {
+        let mut identifier = String::new();
+
+        let curr = tokenizer.next().unwrap();
+
+        if curr == '_' || curr.is_alphabetic() {
+            identifier.push(curr)
+        } else {
+            return None
+        }
+
+        while !tokenizer.end() {
+            let current = *tokenizer.peek().unwrap();
+            if !current.is_whitespace() && (current == '_' || current.is_alphanumeric() || current == '?' || current == '!') {
+                identifier.push(tokenizer.next().unwrap());
+            } else {
+                break
+            }
+        }
+
+        if !identifier.is_empty() {
+            return Some(
+                Token::new(
+                    TokenType::Identifier,
+                    TokenPosition::new(0, *tokenizer.index()),
+                    identifier,
+                )
+            )
+        }
+
+        None
+    }
+}
