@@ -4,6 +4,7 @@ use std::fmt;
 #[derive(Debug, PartialEq)]
 pub enum TokenType {
     IntLiteral,
+    Symbol,
     Whitespace,
     EOF,
 }
@@ -44,7 +45,7 @@ impl fmt::Display for Token {
         &self,
         f: &mut fmt::Formatter,
     ) -> fmt::Result {
-        write!(f, "Token({}, {:?}({}))", self.position, self.token_type, self.content)
+        write!(f, "Token({}, {:?} '{}')", self.position, self.token_type, self.content)
     }
 }
 

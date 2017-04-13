@@ -10,11 +10,10 @@ pub struct Lexer {
 impl Lexer {
     pub fn new(
         tokenizer: Tokenizer,
-        matchers:  Vec<Box<Matcher>>,
     ) -> Lexer {
         Lexer {
             tokenizer: tokenizer,
-            matchers:  matchers,
+            matchers:  Vec::new(),
         }
     }
 
@@ -48,7 +47,10 @@ impl Iterator for Lexer {
         match *token.token_type() {
             TokenType::EOF => None,
             TokenType::Whitespace => {
-                Some(self.next().unwrap())
+                match self.next() {
+                    Some(t) => Some(t),
+                    None    => None,
+                }
             },
 
             _ => Some(token)

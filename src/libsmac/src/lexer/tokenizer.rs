@@ -61,9 +61,9 @@ impl Tokenizer {
             return None
         }
 
+        let v = Some(&self.items[self.index]);
         self.index += 1;
-
-        Some(&self.items[self.index])
+        v
     }
 
     pub fn advance(&mut self, a: usize) {

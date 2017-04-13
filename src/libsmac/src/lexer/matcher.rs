@@ -59,3 +59,44 @@ impl Matcher for IntLiteral {
         None
     }
 }
+
+pub struct Symbol {
+    symbols: Vec<String>,
+}
+
+impl Symbol {
+    pub fn new(symbols: Vec<String>) -> Symbol {
+        Symbol {
+            symbols: symbols
+        }
+    }
+}
+
+impl Matcher for Symbol {
+    fn try_match(
+        &self,
+        tokenizer: &mut Tokenizer
+    ) -> Option<Token> {
+        for symbol in self.symbols.clone() {
+            let dat = tokenizer.clone().take(symbol.len());
+
+            if dat.size_hint().1.unwrap() != symbol.len() {
+                return None;
+            }
+
+            if dat.collect::<String>() == symbol {
+                tokenizer.advance(symbol.len());
+
+                return Some(
+                    Token::new(
+                        TokenType::Symbol,
+                        TokenPosition::new(0, *tokenizer.index()),
+                        symbol,
+                    )
+                );
+            }
+        }
+
+        None
+    }
+}
