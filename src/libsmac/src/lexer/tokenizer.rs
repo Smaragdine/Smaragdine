@@ -78,4 +78,9 @@ impl Tokenizer {
     pub fn commit_snapshot(&mut self) {
         self.snapshots.pop();
     }
+
+    // Immutable access
+    pub fn index(&self) -> &usize {
+        &self.index
+    }
 }

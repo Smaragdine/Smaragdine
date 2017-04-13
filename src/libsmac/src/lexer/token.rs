@@ -3,14 +3,24 @@ use std::fmt;
 /// Represents the type of a token
 #[derive(Debug, PartialEq)]
 pub enum TokenType {
-    White,
+    IntLiteral,
+    Whitespace,
     EOF,
 }
 
 /// Position of a token
 pub struct TokenPosition {
-    line: u32,
-    col:  u32,
+    line: usize,
+    col:  usize,
+}
+
+impl TokenPosition {
+    pub fn new(line: usize, col: usize) -> TokenPosition {
+        TokenPosition {
+            line: line,
+            col:  col,
+        }
+    }
 }
 
 impl fmt::Display for TokenPosition {
@@ -23,13 +33,13 @@ impl fmt::Display for TokenPosition {
 }
 
 /// Token representation
-pub struct Token<'a> {
+pub struct Token {
     token_type: TokenType,
     position:   TokenPosition,
-    content:    &'a mut str,
+    content:    String,
 }
 
-impl<'a> fmt::Display for Token<'a> {
+impl fmt::Display for Token {
     fn fmt(
         &self,
         f: &mut fmt::Formatter,
@@ -38,11 +48,11 @@ impl<'a> fmt::Display for Token<'a> {
     }
 }
 
-impl<'a> Token<'a> {
+impl Token {
     pub fn new(
         token_type: TokenType,
         position:   TokenPosition,
-        content:    &mut str,
+        content:    String,
     ) -> Token {
         Token {
             token_type: token_type,
@@ -60,7 +70,7 @@ impl<'a> Token<'a> {
         &self.position
     }
     
-    pub fn content(&self) -> &str {
+    pub fn content(&self) -> &String {
         &self.content
     }
 
@@ -72,13 +82,9 @@ impl<'a> Token<'a> {
     pub fn position_mut(&mut self) -> &mut TokenPosition {
         &mut self.position
     }
-    
-    pub fn content_mut(&mut self) -> &mut str {
-        &mut self.content
-    }
 }
 
-impl<'a> PartialEq for Token<'a> {
+impl<'a> PartialEq for Token {
     fn eq(&self, other: &Token) -> bool {
         &self.token_type == other.token_type()
     }
