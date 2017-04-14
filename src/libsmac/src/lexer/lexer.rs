@@ -4,16 +4,14 @@ use lexer::token::{Token, TokenType};
 
 pub struct Lexer {
     tokenizer: Tokenizer,
-    matchers:  Vec<Box<Matcher>>,
+    matchers: Vec<Box<Matcher>>,
 }
 
 impl Lexer {
-    pub fn new(
-        tokenizer: Tokenizer,
-    ) -> Lexer {
+    pub fn new(tokenizer: Tokenizer) -> Lexer {
         Lexer {
             tokenizer: tokenizer,
-            matchers:  Vec::new(),
+            matchers: Vec::new(),
         }
     }
 
@@ -21,10 +19,9 @@ impl Lexer {
         for matcher in &mut self.matchers {
             match self.tokenizer.try_match_token(matcher.as_ref()) {
                 Some(t) => return Some(t),
-                None    => continue,
+                None => continue,
             }
         }
-
         None
     }
 
@@ -43,17 +40,15 @@ impl Iterator for Lexer {
 
     fn next(&mut self) -> Option<Token> {
         let token = self.match_token().unwrap();
-
         match *token.token_type() {
             TokenType::EOF => None,
             TokenType::Whitespace => {
                 match self.next() {
                     Some(t) => Some(t),
-                    None    => None,
+                    None => None,
                 }
-            },
-
-            _ => Some(token)
+            }
+            _ => Some(token),
         }
     }
 }

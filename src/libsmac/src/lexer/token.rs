@@ -13,23 +13,20 @@ pub enum TokenType {
 /// Position of a token
 pub struct TokenPosition {
     line: usize,
-    col:  usize,
+    col: usize,
 }
 
 impl TokenPosition {
     pub fn new(line: usize, col: usize) -> TokenPosition {
         TokenPosition {
             line: line,
-            col:  col,
+            col: col,
         }
     }
 }
 
 impl fmt::Display for TokenPosition {
-    fn fmt(
-        &self,
-        f: &mut fmt::Formatter,
-    ) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "[ln {}, col {}]", self.line, self.col)
     }
 }
@@ -37,29 +34,26 @@ impl fmt::Display for TokenPosition {
 /// Token representation
 pub struct Token {
     token_type: TokenType,
-    position:   TokenPosition,
-    content:    String,
+    position: TokenPosition,
+    content: String,
 }
 
 impl fmt::Display for Token {
-    fn fmt(
-        &self,
-        f: &mut fmt::Formatter,
-    ) -> fmt::Result {
-        write!(f, "Token({}, {:?} '{}')", self.position, self.token_type, self.content)
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f,
+               "Token({}, {:?} '{}')",
+               self.position,
+               self.token_type,
+               self.content)
     }
 }
 
 impl Token {
-    pub fn new(
-        token_type: TokenType,
-        position:   TokenPosition,
-        content:    String,
-    ) -> Token {
+    pub fn new(token_type: TokenType, position: TokenPosition, content: String) -> Token {
         Token {
             token_type: token_type,
-            position:   position,
-            content:    content,
+            position: position,
+            content: content,
         }
     }
 
@@ -71,7 +65,7 @@ impl Token {
     pub fn position(&self) -> &TokenPosition {
         &self.position
     }
-    
+
     pub fn content(&self) -> &String {
         &self.content
     }

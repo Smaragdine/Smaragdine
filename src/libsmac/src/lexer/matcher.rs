@@ -8,23 +8,17 @@ pub trait Matcher {
 pub struct Whitespace {}
 
 impl Matcher for Whitespace {
-    fn try_match(
-        &self,
-        tokenizer: &mut Tokenizer,
-    ) -> Option<Token> {
+    fn try_match(&self, tokenizer: &mut Tokenizer) -> Option<Token> {
         let mut found = false;
-
         while !tokenizer.end() && " \n\r".contains(*tokenizer.peek().unwrap()) {
             found = true;
             tokenizer.next();
         }
-
         if found {
-            return Some(
-                Token::new(TokenType::Whitespace, TokenPosition::new(0, 0), "".to_string()),
-            )
+            return Some(Token::new(TokenType::Whitespace,
+                                   TokenPosition::new(0, 0),
+                                   "".to_string()));
         }
-
         None
     }
 }
@@ -34,28 +28,18 @@ pub struct IntLiteral {}
 impl Matcher for IntLiteral {
     fn try_match(&self, tokenizer: &mut Tokenizer) -> Option<Token> {
         let mut integer = "".to_owned();
-
         let mut start: usize = 0;
-
         while !tokenizer.end() && "0123456789".contains(*tokenizer.peek().unwrap()) {
-
             if integer.is_empty() {
                 start = *tokenizer.index();
             }
-
             integer.push(tokenizer.next().unwrap())
         }
-
         if !integer.is_empty() {
-            return Some(
-                Token::new(
-                    TokenType::IntLiteral,
-                    TokenPosition::new(start, *tokenizer.index()),
-                    integer,
-                )
-            )
+            return Some(Token::new(TokenType::IntLiteral,
+                                   TokenPosition::new(start, *tokenizer.index()),
+                                   integer));
         }
-
         None
     }
 }
@@ -66,37 +50,24 @@ pub struct Symbol {
 
 impl Symbol {
     pub fn new(symbols: Vec<String>) -> Symbol {
-        Symbol {
-            symbols: symbols
-        }
+        Symbol { symbols: symbols }
     }
 }
 
 impl Matcher for Symbol {
-    fn try_match(
-        &self,
-        tokenizer: &mut Tokenizer
-    ) -> Option<Token> {
+    fn try_match(&self, tokenizer: &mut Tokenizer) -> Option<Token> {
         for symbol in self.symbols.clone() {
             let dat = tokenizer.clone().take(symbol.len());
-
             if dat.size_hint().1.unwrap() != symbol.len() {
                 return None;
             }
-
             if dat.collect::<String>() == symbol {
                 tokenizer.advance(symbol.len());
-
-                return Some(
-                    Token::new(
-                        TokenType::Symbol,
-                        TokenPosition::new(0, *tokenizer.index()),
-                        symbol,
-                    )
-                );
+                return Some(Token::new(TokenType::Symbol,
+                                       TokenPosition::new(0, *tokenizer.index()),
+                                       symbol));
             }
         }
-
         None
     }
 }
@@ -104,39 +75,28 @@ impl Matcher for Symbol {
 pub struct Identifier {}
 
 impl Matcher for Identifier {
-    fn try_match(
-        &self,
-        tokenizer: &mut Tokenizer
-    ) -> Option<Token> {
+    fn try_match(&self, tokenizer: &mut Tokenizer) -> Option<Token> {
         let mut identifier = String::new();
-
         let curr = tokenizer.next().unwrap();
-
         if curr == '_' || curr.is_alphabetic() {
             identifier.push(curr)
         } else {
-            return None
+            return None;
         }
-
         while !tokenizer.end() {
             let current = *tokenizer.peek().unwrap();
-            if !current.is_whitespace() && (current == '_' || current.is_alphanumeric() || current == '?' || current == '!') {
+            if !current.is_whitespace() &&
+               (current == '_' || current.is_alphanumeric() || current == '?' || current == '!') {
                 identifier.push(tokenizer.next().unwrap());
             } else {
-                break
+                break;
             }
         }
-
         if !identifier.is_empty() {
-            return Some(
-                Token::new(
-                    TokenType::Identifier,
-                    TokenPosition::new(0, *tokenizer.index()),
-                    identifier,
-                )
-            )
+            return Some(Token::new(TokenType::Identifier,
+                                   TokenPosition::new(0, *tokenizer.index()),
+                                   identifier));
         }
-
         None
     }
 }

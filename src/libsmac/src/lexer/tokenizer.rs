@@ -8,9 +8,7 @@ struct Snapshot {
 
 impl Snapshot {
     pub fn new(index: usize) -> Snapshot {
-        Snapshot {
-            index: index,
-        }
+        Snapshot { index: index }
     }
 
     pub fn index(&self) -> usize {
@@ -20,8 +18,8 @@ impl Snapshot {
 
 #[derive(Clone, Debug)]
 pub struct Tokenizer {
-    index:     usize,
-    items:     Vec<char>,
+    index: usize,
+    items: Vec<char>,
     snapshots: Vec<Snapshot>,
 }
 
@@ -34,13 +32,11 @@ impl Iterator for Tokenizer {
 }
 
 impl Tokenizer {
-    pub fn new(
-        items: &mut Iterator<Item = char>
-    ) -> Tokenizer {
+    pub fn new(items: &mut Iterator<Item = char>) -> Tokenizer {
         Tokenizer {
-            index:     0,
-            items:     items.collect(),
-            snapshots: Vec::new()
+            index: 0,
+            items: items.collect(),
+            snapshots: Vec::new(),
         }
     }
 
@@ -50,7 +46,7 @@ impl Tokenizer {
 
     pub fn peek(&self) -> Option<&char> {
         if self.end() {
-            return None
+            return None;
         }
 
         Some(&self.items[self.index])
@@ -58,7 +54,7 @@ impl Tokenizer {
 
     pub fn read(&mut self) -> Option<&char> {
         if self.end() {
-            return None
+            return None;
         }
 
         let v = Some(&self.items[self.index]);
@@ -84,9 +80,9 @@ impl Tokenizer {
 
     pub fn try_match_token(&mut self, matcher: &Matcher) -> Option<Token> {
         if self.end() {
-            return Some(
-                Token::new(TokenType::EOF, TokenPosition::new(self.index, self.index), "".to_string()),
-            )
+            return Some(Token::new(TokenType::EOF,
+                                   TokenPosition::new(self.index, self.index),
+                                   "".to_string()));
         }
 
         self.take_snapshot();
@@ -95,12 +91,12 @@ impl Tokenizer {
             Some(t) => {
                 self.commit_snapshot();
                 Some(t)
-            },
+            }
 
             None => {
                 self.rollback_snapshot();
                 None
-            },
+            }
         }
     }
 
