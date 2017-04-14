@@ -1,5 +1,5 @@
 use lexer::Tokenizer;
-use lexer::token::{Token, TokenType, TokenPosition};
+use lexer::token::{Token, TokenType};
 
 /// Matcher.
 pub trait Matcher {
@@ -18,7 +18,7 @@ impl Matcher for WhitespaceMatcher {
         }
         if found {
             Some(Token::new(TokenType::Whitespace,
-                            TokenPosition::new(0, 0),
+                            tokenizer.last_position(),
                             String::new()))
         } else {
             None
@@ -32,16 +32,12 @@ pub struct IntLiteralMatcher {}
 impl Matcher for IntLiteralMatcher {
     fn try_match(&self, tokenizer: &mut Tokenizer) -> Option<Token> {
         let mut integer = String::new();
-        let mut start: usize = 0;
         while !tokenizer.end() && tokenizer.peek().unwrap().is_digit(10) {
-            if integer.is_empty() {
-                start = *tokenizer.index();
-            }
             integer.push(tokenizer.next().unwrap())
         }
         if !integer.is_empty() {
             Some(Token::new(TokenType::IntLiteral,
-                            TokenPosition::new(start, *tokenizer.index()),
+                            tokenizer.last_position(),
                             integer))
         } else {
             None
@@ -75,7 +71,7 @@ impl Matcher for ConstantMatcher {
             if dat.collect::<String>() == constant {
                 tokenizer.advance(constant.len());
                 return Some(Token::new(self.token_type.clone(),
-                                       TokenPosition::new(0, *tokenizer.index()),
+                                       tokenizer.last_position(),
                                        constant));
             }
         }
@@ -90,7 +86,7 @@ impl Matcher for IdentifierMatcher {
     fn try_match(&self, tokenizer: &mut Tokenizer) -> Option<Token> {
         let mut identifier = String::new();
         let curr = tokenizer.next().unwrap();
-        if curr == '_' || curr.is_alphabetic() {
+        if curr.is_alphabetic() || curr == '_' {
             identifier.push(curr)
         } else {
             return None;
@@ -105,7 +101,7 @@ impl Matcher for IdentifierMatcher {
         }
         if !identifier.is_empty() {
             Some(Token::new(TokenType::Identifier,
-                            TokenPosition::new(0, *tokenizer.index()),
+                            tokenizer.last_position(),
                             identifier))
         } else {
             None

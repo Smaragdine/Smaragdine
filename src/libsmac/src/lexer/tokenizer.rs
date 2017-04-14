@@ -2,13 +2,17 @@ use lexer::matcher::Matcher;
 use lexer::token::{Token, TokenType, TokenPosition};
 
 #[derive(Clone, Debug)]
-struct Snapshot {
+pub struct Snapshot {
+    pub pos: TokenPosition,
     index: usize,
 }
 
 impl Snapshot {
-    pub fn new(index: usize) -> Snapshot {
-        Snapshot { index: index }
+    pub fn new(index: usize, pos: TokenPosition) -> Snapshot {
+        Snapshot {
+            index: index,
+            pos: pos,
+        }
     }
 
     pub fn index(&self) -> usize {
@@ -18,6 +22,7 @@ impl Snapshot {
 
 #[derive(Clone, Debug)]
 pub struct Tokenizer {
+    pub pos: TokenPosition,
     index: usize,
     items: Vec<char>,
     snapshots: Vec<Snapshot>,
@@ -35,6 +40,7 @@ impl Tokenizer {
     pub fn new(items: &mut Iterator<Item = char>) -> Tokenizer {
         Tokenizer {
             index: 0,
+            pos: TokenPosition::default(),
             items: items.collect(),
             snapshots: Vec::new(),
         }
@@ -56,26 +62,43 @@ impl Tokenizer {
         if self.end() {
             return None;
         }
-
-        let v = Some(&self.items[self.index]);
-        self.index += 1;
-        v
+        self.advance(1);
+        Some(&self.items[self.index - 1])
     }
 
     pub fn advance(&mut self, a: usize) {
+        for i in 0..a {
+            match self.items[self.index + i] {
+                '\n' => {
+                    self.pos.line += 1;
+                    self.pos.col = 0;
+                }
+                _ => self.pos.col += 1
+            }
+        }
         self.index += a;
     }
 
     pub fn take_snapshot(&mut self) {
-        self.snapshots.push(Snapshot::new(self.index));
+        self.snapshots.push(Snapshot::new(self.index, self.pos));
+    }
+
+    pub fn peek_snapshot(&self) -> Option<&Snapshot> {
+        self.snapshots.last()
     }
 
     pub fn rollback_snapshot(&mut self) {
-        self.index = self.snapshots.pop().unwrap().index()
+        let snapshot = self.snapshots.pop().unwrap();
+        self.index = snapshot.index();
+        self.pos = snapshot.pos;
     }
 
     pub fn commit_snapshot(&mut self) {
         self.snapshots.pop();
+    }
+
+    pub fn last_position(&self) -> TokenPosition {
+        self.peek_snapshot().unwrap().pos
     }
 
     pub fn try_match_token(&mut self, matcher: &Matcher) -> Option<Token> {
@@ -86,7 +109,6 @@ impl Tokenizer {
         }
 
         self.take_snapshot();
-
         match matcher.try_match(self) {
             Some(t) => {
                 self.commit_snapshot();

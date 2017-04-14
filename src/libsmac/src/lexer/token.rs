@@ -12,10 +12,19 @@ pub enum TokenType {
 }
 
 /// Position of a token
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct TokenPosition {
-    line: usize,
-    col: usize,
+    pub line: usize,
+    pub col: usize,
+}
+
+impl Default for TokenPosition {
+    fn default() -> Self {
+        TokenPosition {
+            line: 1,
+            col: 0,
+        }
+    }
 }
 
 impl TokenPosition {
