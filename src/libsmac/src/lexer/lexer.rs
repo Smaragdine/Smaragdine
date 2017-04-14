@@ -24,8 +24,7 @@ impl Lexer {
         }
         None
     }
-
-    // Mutable access
+    
     pub fn matchers(&self) -> &Vec<Box<Matcher>> {
         &self.matchers
     }

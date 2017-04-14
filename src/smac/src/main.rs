@@ -7,13 +7,13 @@ use lexer::matcher::{
 
 fn main() {
     let mut data = r#"
-1 2 3
-(1 2)
-working?
-_works
-work!
-wo_ork!?
-work
+    1 2 3
+    (1 2)
+    working?
+    _works
+    work!
+    wo_ork!?
+    work
     "#.chars();
 
     let tokenizer = lexer::Tokenizer::new(&mut data);
