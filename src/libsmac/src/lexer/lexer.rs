@@ -1,6 +1,55 @@
 use lexer::Tokenizer;
-use lexer::matcher::Matcher;
+use lexer::matcher::*;
 use lexer::token::{Token, TokenType};
+use std::str::Chars;
+
+pub fn grab_smaragdine_lexer(data: &mut Chars) -> Lexer {
+    let tokenizer = Tokenizer::new(data);
+    let mut lexer = Lexer::new(tokenizer);
+
+    let symbols = vec![
+        "(",
+        ")",
+    ].iter().map(|&x| x.to_string()).collect();
+
+    let operators = vec![
+        "+"   // add
+        ,"-"  // sub
+        ,"*"  // mul
+        ,"/"  // div
+        ,"==" // equality
+        ,"="  // assignment
+        ,"<<" // shift left
+        ,"<=" // less than or equal
+        ,"<"  // less than
+        ,">>" // shift right
+        ,">=" // greater than or equal
+        ,">"  // greater than
+        ,"~"  // bitwise negate
+        ,"!"  // logical not
+        ,"&&" // logical and
+        ,"&"  // bitwise and
+        ,"^"  // bitwise xor
+        ,"||" // logical or
+        ,"|"  // bitwise or
+        ,"%"  // modulo
+        ,":"  // type hint
+    ].iter().map(|&x| x.to_string()).collect();
+
+    let matcher_symbol      = ConstantMatcher::new(TokenType::Symbol, symbols);
+    let matcher_operator    = ConstantMatcher::new(TokenType::Operator, operators);
+    let matcher_whitespace  = WhitespaceMatcher {};
+    let matcher_int_literal = IntLiteralMatcher {};
+    let matcher_identifier  = IdentifierMatcher {};
+
+    lexer.matchers_mut().push(Box::new(matcher_whitespace));
+    lexer.matchers_mut().push(Box::new(matcher_int_literal));
+    lexer.matchers_mut().push(Box::new(matcher_identifier));
+    lexer.matchers_mut().push(Box::new(matcher_operator));
+    lexer.matchers_mut().push(Box::new(matcher_symbol));
+
+    lexer
+}
 
 pub struct Lexer {
     tokenizer: Tokenizer,

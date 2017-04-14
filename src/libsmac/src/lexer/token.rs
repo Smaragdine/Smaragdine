@@ -1,16 +1,18 @@
 use std::fmt;
 
 /// Represents the type of a token
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum TokenType {
     IntLiteral,
     Symbol,
+    Operator,
     Identifier,
     Whitespace,
     EOF,
 }
 
 /// Position of a token
+#[derive(Debug, Clone)]
 pub struct TokenPosition {
     line: usize,
     col: usize,

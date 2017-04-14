@@ -6,3 +6,4 @@ pub mod lexer;
 pub use self::lexer::Lexer;
 pub use self::token::Token;
 pub use self::tokenizer::Tokenizer;
+pub use self::lexer::grab_smaragdine_lexer;

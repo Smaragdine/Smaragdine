@@ -82,7 +82,7 @@ impl Tokenizer {
         if self.end() {
             return Some(Token::new(TokenType::EOF,
                                    TokenPosition::new(self.index, self.index),
-                                   "".to_string()));
+                                   String::new()));
         }
 
         self.take_snapshot();

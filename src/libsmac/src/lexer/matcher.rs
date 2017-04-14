@@ -1,13 +1,15 @@
 use lexer::Tokenizer;
 use lexer::token::{Token, TokenType, TokenPosition};
 
+/// Matcher.
 pub trait Matcher {
     fn try_match(&self, tokenizer: &mut Tokenizer) -> Option<Token>;
 }
 
-pub struct Whitespace {}
+/// A matcher that only matches white-space.
+pub struct WhitespaceMatcher {}
 
-impl Matcher for Whitespace {
+impl Matcher for WhitespaceMatcher {
     fn try_match(&self, tokenizer: &mut Tokenizer) -> Option<Token> {
         let mut found = false;
         while !tokenizer.end() && tokenizer.peek().unwrap().is_whitespace() {
@@ -24,11 +26,12 @@ impl Matcher for Whitespace {
     }
 }
 
-pub struct IntLiteral {}
+/// A matcher that matches base-10 integer literals.
+pub struct IntLiteralMatcher {}
 
-impl Matcher for IntLiteral {
+impl Matcher for IntLiteralMatcher {
     fn try_match(&self, tokenizer: &mut Tokenizer) -> Option<Token> {
-        let mut integer = "".to_owned();
+        let mut integer = String::new();
         let mut start: usize = 0;
         while !tokenizer.end() && tokenizer.peek().unwrap().is_digit(10) {
             if integer.is_empty() {
@@ -46,37 +49,44 @@ impl Matcher for IntLiteral {
     }
 }
 
-pub struct Symbol {
-    symbols: Vec<String>,
+/// A matcher that matches constant elements
+/// of the specified token type.
+pub struct ConstantMatcher {
+    token_type: TokenType,
+    constants: Vec<String>,
 }
 
-impl Symbol {
-    pub fn new(symbols: Vec<String>) -> Symbol {
-        Symbol { symbols: symbols }
+impl ConstantMatcher {
+    pub fn new(token_type: TokenType, constants: Vec<String>) -> Self {
+        ConstantMatcher {
+            token_type: token_type,
+            constants: constants,
+        }
     }
 }
 
-impl Matcher for Symbol {
+impl Matcher for ConstantMatcher {
     fn try_match(&self, tokenizer: &mut Tokenizer) -> Option<Token> {
-        for symbol in self.symbols.clone() {
-            let dat = tokenizer.clone().take(symbol.len());
-            if dat.size_hint().1.unwrap() != symbol.len() {
+        for constant in self.constants.clone() {
+            let dat = tokenizer.clone().take(constant.len());
+            if dat.size_hint().1.unwrap() != constant.len() {
                 return None;
             }
-            if dat.collect::<String>() == symbol {
-                tokenizer.advance(symbol.len());
-                return Some(Token::new(TokenType::Symbol,
+            if dat.collect::<String>() == constant {
+                tokenizer.advance(constant.len());
+                return Some(Token::new(self.token_type.clone(),
                                        TokenPosition::new(0, *tokenizer.index()),
-                                       symbol));
+                                       constant));
             }
         }
         None
     }
 }
 
-pub struct Identifier {}
+/// A matcher that matches identifiers.
+pub struct IdentifierMatcher {}
 
-impl Matcher for Identifier {
+impl Matcher for IdentifierMatcher {
     fn try_match(&self, tokenizer: &mut Tokenizer) -> Option<Token> {
         let mut identifier = String::new();
         let curr = tokenizer.next().unwrap();
