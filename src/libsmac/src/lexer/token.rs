@@ -43,6 +43,7 @@ impl fmt::Display for TokenPosition {
 }
 
 /// Token representation
+#[derive(Debug)]
 pub struct Token {
     token_type: TokenType,
     position: TokenPosition,
