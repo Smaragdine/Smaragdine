@@ -40,11 +40,13 @@ pub fn grab_smaragdine_lexer(data: &mut Chars) -> Lexer {
     let matcher_operator       = ConstantMatcher::new(TokenType::Operator, operators);
     let matcher_whitespace     = WhitespaceMatcher {};
     let matcher_int_literal    = IntLiteralMatcher {};
+    let matcher_float_literal  = FloatLiteralMatcher {};
     let matcher_identifier     = IdentifierMatcher {};
     let matcher_string_literal = StringLiteralMatcher {};
 
     lexer.matchers_mut().push(Box::new(matcher_whitespace));
     lexer.matchers_mut().push(Box::new(matcher_int_literal));
+    lexer.matchers_mut().push(Box::new(matcher_float_literal));
     lexer.matchers_mut().push(Box::new(matcher_string_literal));
     lexer.matchers_mut().push(Box::new(matcher_identifier));
     lexer.matchers_mut().push(Box::new(matcher_operator));

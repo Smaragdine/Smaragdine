@@ -9,6 +9,7 @@ pub enum TokenType {
     Identifier,
     Whitespace,
     StringLiteral,
+    FloatLiteral,
     CharLiteral,
     LiteralStringLiteral,
     EOF,
