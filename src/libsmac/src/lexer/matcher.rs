@@ -75,6 +75,69 @@ impl Matcher for IntLiteralMatcher {
     }
 }
 
+/// A matcher that matches string literals.
+pub struct StringLiteralMatcher {}
+
+impl Matcher for StringLiteralMatcher {
+    fn try_match(&self, tokenizer: &mut Tokenizer) -> Option<Token> {
+        let delimeter  = match tokenizer.peek().unwrap() {
+            &'"'  => Some('"'),
+            &'\'' => Some('\''),
+            _ => return None,
+        };
+        tokenizer.advance(1); // Skips the opening delimeter
+        let mut string       = String::new();
+        let mut found_escape = false;
+        loop {
+            if tokenizer.end() {
+                break
+            }
+            match delimeter.unwrap() {
+                '"'  => {
+                    if tokenizer.peek().unwrap() == &'"' {
+                        break
+                    }
+                    string.push(tokenizer.next().unwrap())
+                },
+                _ => {
+                    if found_escape {
+                        string.push(
+                            match tokenizer.next().unwrap() {
+                                c @ '\\' | c @ '\'' => c,
+                                'n' => '\n',
+                                'r' => '\r',
+                                't' => '\t',
+                                s => panic!("Invalid character escape: {}", s),
+                            }
+                        );
+                        found_escape = false
+                    } else {
+                        match tokenizer.peek().unwrap() {
+                            &'\\' => found_escape = true,
+                            &'\'' => break,
+                            _ => (),
+                        }
+                        tokenizer.next();
+                    }
+                }
+            }
+        }
+        tokenizer.advance(1); // Skips the closing delimeter
+        match delimeter.unwrap() {
+            '"'  => {
+                token!(tokenizer, StringLiteral, string)
+            },
+            _ => {
+                if string.len() <= 1 {
+                    token!(tokenizer, CharLiteral, string)
+                } else {
+                    token!(tokenizer, StringLiteral, string)
+                }
+            },
+        }
+    }
+}
+
 /// A matcher that matches constant elements
 /// of the specified token type.
 pub struct ConstantMatcher {

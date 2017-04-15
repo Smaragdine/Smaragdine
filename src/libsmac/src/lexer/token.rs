@@ -8,6 +8,9 @@ pub enum TokenType {
     Operator,
     Identifier,
     Whitespace,
+    StringLiteral,
+    CharLiteral,
+    LiteralStringLiteral,
     EOF,
 }
 
