@@ -11,10 +11,10 @@ let b? = b
 let b!(val: bool) = b = val
 let c = 0x12345678
 let d = 0b10101010
-let s  = "escaped \t \"string\"\nliteral"
-let s? = 'non-escaped\r string \n\tliteral'
-let char = "\n"
-let not_char = 'a'
+let s  = "everything's escaped here \n\t\r means nothing"
+let s? = 'non-escaped \'string\' \n\tliteral'
+let char = '\n'
+let not_char = "a"
 let empty = ""
     "#.chars();
 
