@@ -16,6 +16,8 @@ let s? = 'non-escaped \'string\' \n\tliteral'
 let char = '\n'
 let not_char = "a"
 let empty = ""
+let float = .42
+let f = 0.1337
     "#.chars();
 
     let lexer = grab_smaragdine_lexer(&mut data);
