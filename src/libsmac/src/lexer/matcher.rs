@@ -1,6 +1,17 @@
 use lexer::Tokenizer;
 use lexer::token::{Token, TokenType};
 
+macro_rules! token {
+    ($tokenizer:expr, $token_type:ident, $accum:expr) => {{
+        token!($tokenizer , TokenType::$token_type, $accum)
+    }};
+    ($tokenizer:expr, $token_type:expr, $accum:expr) => {{
+        let tokenizer = $tokenizer as &$crate::lexer::Tokenizer;
+        let token_type = $token_type as $crate::lexer::token::TokenType;
+        Some(Token::new(token_type, tokenizer.last_position(), $accum))
+    }};
+}
+
 /// Matcher.
 pub trait Matcher {
     fn try_match(&self, tokenizer: &mut Tokenizer) -> Option<Token>;
@@ -17,9 +28,7 @@ impl Matcher for WhitespaceMatcher {
             tokenizer.next();
         }
         if found {
-            Some(Token::new(TokenType::Whitespace,
-                            tokenizer.last_position(),
-                            String::new()))
+            token!(tokenizer, Whitespace, String::new())
         } else {
             None
         }
@@ -31,14 +40,35 @@ pub struct IntLiteralMatcher {}
 
 impl Matcher for IntLiteralMatcher {
     fn try_match(&self, tokenizer: &mut Tokenizer) -> Option<Token> {
-        let mut integer = String::new();
-        while !tokenizer.end() && tokenizer.peek().unwrap().is_digit(10) {
-            integer.push(tokenizer.next().unwrap())
+        let mut accum = String::new();
+        let base = match tokenizer.peek().unwrap() {
+            &'0' => {
+                match tokenizer.peek_n(1) {
+                    Some(chr) => {
+                        match chr {
+                            &'x' => 16, // base 16 (hexadecimal)
+                            &'b' => 2, // base 2 (binary)
+                            _ => 10, // base 10 (decimal)
+                        }
+                    }
+                    _ => 10, // base 10 (decimal)
+                }
+            }
+            _ => 10, // base 10 (decimal)
+        };
+        if base != 10 {
+            tokenizer.advance(2); // skip prefix
         }
-        if !integer.is_empty() {
-            Some(Token::new(TokenType::IntLiteral,
-                            tokenizer.last_position(),
-                            integer))
+        while !tokenizer.end() && tokenizer.peek().unwrap().is_digit(base) {
+            accum.push(tokenizer.next().unwrap());
+        }
+        if !accum.is_empty() {
+            // Produce token as base-10 string
+            let literal: String = match u64::from_str_radix(accum.as_str(), base) {
+                Ok(result) => result.to_string(),
+                Err(error) => panic!("Unable to parse integer literal: {}", error)
+            };
+            token!(tokenizer, IntLiteral, literal)
         } else {
             None
         }
@@ -70,9 +100,7 @@ impl Matcher for ConstantMatcher {
             }
             if dat.collect::<String>() == constant {
                 tokenizer.advance(constant.len());
-                return Some(Token::new(self.token_type.clone(),
-                                       tokenizer.last_position(),
-                                       constant));
+                return token!(tokenizer, self.token_type.clone(), constant)
             }
         }
         None
@@ -100,9 +128,7 @@ impl Matcher for IdentifierMatcher {
             }
         }
         if !identifier.is_empty() {
-            Some(Token::new(TokenType::Identifier,
-                            tokenizer.last_position(),
-                            identifier))
+            token!(tokenizer, Identifier, identifier)
         } else {
             None
         }
