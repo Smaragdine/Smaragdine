@@ -93,8 +93,8 @@ impl Matcher for StringLiteralMatcher {
                 break
             }
             match delimeter.unwrap() {
-                '\''  => {
-                    if tokenizer.peek().unwrap() == &'\'' {
+                '\"'  => {
+                    if tokenizer.peek().unwrap() == &'\"' {
                         break
                     }
                     string.push(tokenizer.next().unwrap())
@@ -103,7 +103,7 @@ impl Matcher for StringLiteralMatcher {
                     if found_escape {
                         string.push(
                             match tokenizer.next().unwrap() {
-                                c @ '\\' | c @ '"' => c,
+                                c @ '\\' | c @ '\'' => c,
                                 'n' => '\n',
                                 'r' => '\r',
                                 't' => '\t',
@@ -117,7 +117,7 @@ impl Matcher for StringLiteralMatcher {
                                 tokenizer.next();
                                 found_escape = true
                             },
-                            &'"' => break,
+                            &'\'' => break,
                             _ => string.push(tokenizer.next().unwrap()),
                         }
                     }
@@ -126,7 +126,7 @@ impl Matcher for StringLiteralMatcher {
         }
         tokenizer.advance(1); // Skips the closing delimeter
         match delimeter.unwrap() {
-            '\''  => {
+            '"'  => {
                 token!(tokenizer, StringLiteral, string)
             },
             _ => {
