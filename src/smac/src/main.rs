@@ -14,7 +14,7 @@ let d = 0b10101010
 let s  = "escaped \t \"string\"\nliteral"
 let s? = 'non-escaped\r string \n\tliteral'
 let char = "\n"
-let not_char = '\n'
+let not_char = 'a'
 let empty = ""
     "#.chars();
 

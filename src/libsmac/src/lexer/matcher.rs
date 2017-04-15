@@ -125,11 +125,17 @@ impl Matcher for StringLiteralMatcher {
             }
         }
         tokenizer.advance(1); // Skips the closing delimeter
-
-        if string.len() == 1 {
-            token!(tokenizer, CharLiteral, string)
-        } else {
-            token!(tokenizer, StringLiteral, string)
+        match delimeter.unwrap() {
+            '\''  => {
+                token!(tokenizer, StringLiteral, string)
+            },
+            _ => {
+                if string.len() == 1 {
+                    token!(tokenizer, CharLiteral, string)
+                } else {
+                    token!(tokenizer, StringLiteral, string)
+                }
+            },
         }
     }
 }
