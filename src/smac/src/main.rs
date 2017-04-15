@@ -1,6 +1,5 @@
 extern crate libsmac;
 
-use libsmac::lexer::block_tree;
 use libsmac::lexer::grab_smaragdine_lexer;
 
 fn main() {
