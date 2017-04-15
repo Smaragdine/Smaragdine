@@ -11,9 +11,10 @@ let b? = b
 let b!(val: bool) = b = val
 let c = 0x12345678
 let d = 0b10101010
-let s  = "a string literal assignment"
-let s? = 'a string with \'escapes\nhello'
-let char = '\n'
+let s  = "escaped \t \"string\"\nliteral"
+let s? = 'non-escaped\r string \n\tliteral'
+let char = "\n"
+let not_char = '\n'
 let empty = ""
     "#.chars();
 
