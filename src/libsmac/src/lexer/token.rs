@@ -4,12 +4,13 @@ use std::fmt;
 #[derive(Debug, Clone, PartialEq)]
 pub enum TokenType {
     IntLiteral,
+    FloatLiteral,
+    KeyWord,
     Symbol,
     Operator,
     Identifier,
     Whitespace,
     StringLiteral,
-    FloatLiteral,
     CharLiteral,
     LiteralStringLiteral,
     EOF,
