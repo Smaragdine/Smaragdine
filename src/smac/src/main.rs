@@ -2,6 +2,7 @@ extern crate libsmac;
 
 use libsmac::lexer::block_tree;
 use libsmac::lexer::{grab_smaragdine_lexer, lex_branch, flatten_branch};
+use libsmac::parser::grab_smaragdine_parser;
 
 fn main() {
     let mut data = r#"
@@ -19,6 +20,7 @@ let not_char = "a"
 let empty = ""
 let float = .42
 let f = 0.1337
+let g = true || false
     "#.chars();
 
     let lexer = grab_smaragdine_lexer(&mut data);
@@ -27,13 +29,13 @@ let f = 0.1337
         println!("{}", t)
     }
 
-    let mut data2 = r#"
-outer_block
-    let a = 1.12
-    let b = r"raw string in block"
-    inner_block
-        let char = '\n'
-    let c = 12.23
+    let data2 = r#"
+r"hey"
+'9'
+123.2
+.212
+true
+false
     "#;
 
     let mut block_tree = block_tree::BlockTree::new(&data2, 0);
@@ -41,6 +43,14 @@ outer_block
 
     let lexed_root = lex_branch(&block_tree.tree(&indents));
 
+    let flat_root = flatten_branch(&lexed_root);
+
     println!("\n{:#?}", lexed_root);
-    println!("\n{:#?}", flatten_branch(&lexed_root))
+    println!("\n{:#?}", flat_root);
+
+    let parser = grab_smaragdine_parser(flat_root);
+
+    for t in parser {
+        println!("{:#?}", t)
+    }
 }

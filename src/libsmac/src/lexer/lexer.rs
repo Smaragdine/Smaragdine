@@ -47,9 +47,15 @@ pub fn grab_smaragdine_lexer(data: &mut Chars) -> Lexer {
         "else",
     ].iter().map(|&x| x.to_string()).collect();
 
+    let boolean = vec![
+        "true",
+        "false",
+    ].iter().map(|&x| x.to_string()).collect();
+
     let matcher_symbol         = ConstantMatcher::new(TokenType::Symbol, symbols);
     let matcher_operator       = ConstantMatcher::new(TokenType::Operator, operators);
     let matcher_keyword        = ConstantMatcher::new(TokenType::Keyword, keywords);
+    let matcher_boolean        = ConstantMatcher::new(TokenType::BooleanLiteral, boolean);
     let matcher_whitespace     = WhitespaceMatcher {};
     let matcher_int_literal    = IntLiteralMatcher {};
     let matcher_float_literal  = FloatLiteralMatcher {};
@@ -60,6 +66,7 @@ pub fn grab_smaragdine_lexer(data: &mut Chars) -> Lexer {
     lexer.matchers_mut().push(Box::new(matcher_float_literal));
     lexer.matchers_mut().push(Box::new(matcher_int_literal));
     lexer.matchers_mut().push(Box::new(matcher_string_literal));
+    lexer.matchers_mut().push(Box::new(matcher_boolean));
     lexer.matchers_mut().push(Box::new(matcher_keyword));
     lexer.matchers_mut().push(Box::new(matcher_identifier));
     lexer.matchers_mut().push(Box::new(matcher_operator));
