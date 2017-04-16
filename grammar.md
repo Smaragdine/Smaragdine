@@ -23,7 +23,7 @@ char               = (* Any UTF-8 code-point *)
 char_ascii         = 'a'...'z'
                    | 'A'...'Z'
 
-identifier         = char_ascii [ char_ascii | digit | '_' | '!' | '?' ]
+identifier         = char_ascii { char_ascii | digit | '_' | '!' | '?' }
 
 (* literals *)
 literal_integer    = [ '0' ( 'x' | 'b' ) ] { digit }
