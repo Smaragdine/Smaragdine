@@ -25,7 +25,7 @@ char_ascii         = 'a'...'z'
 
 identifier         = char_ascii [ { char_ascii | digit | '_' | '!' | '?' } ]
 
-(* literals * )
+(* literals *)
 literal_integer    = [ '0' ( 'x' | 'b' ) ] { digit }
 literal_float      = ( { digit } '.' { digit } )
                    | ( '.' { digit } )
