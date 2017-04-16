@@ -10,6 +10,8 @@ pub fn grab_smaragdine_lexer(data: &mut Chars) -> Lexer {
     let symbols = vec![
         "(",
         ")",
+        "[",
+        "]",
     ].iter().map(|&x| x.to_string()).collect();
 
     let operators = vec![

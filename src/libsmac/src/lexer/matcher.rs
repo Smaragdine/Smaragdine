@@ -110,9 +110,16 @@ pub struct StringLiteralMatcher {}
 
 impl Matcher for StringLiteralMatcher {
     fn try_match(&self, tokenizer: &mut Tokenizer) -> Option<Token> {
+        let mut raw_marker = false;
         let delimeter  = match tokenizer.peek().unwrap() {
             &'"'  => Some('"'),
             &'\'' => Some('\''),
+            &'r' if tokenizer.peek_n(1) == Some(&'"') => {
+                raw_marker = true;
+                tokenizer.advance(1); // Skips prefix
+
+                Some('"')
+            },
             _ => return None,
         };
         tokenizer.advance(1); // Skips the opening delimeter
@@ -122,34 +129,31 @@ impl Matcher for StringLiteralMatcher {
             if tokenizer.end() {
                 break
             }
-            match delimeter.unwrap() {
-                '\"'  => {
-                    if tokenizer.peek().unwrap() == &'\"' {
-                        break
-                    }
-                    string.push(tokenizer.next().unwrap())
-                },
-                _ => {
-                    if found_escape {
-                        string.push(
-                            match tokenizer.next().unwrap() {
-                                c @ '\\' | c @ '\'' => c,
-                                'n' => '\n',
-                                'r' => '\r',
-                                't' => '\t',
-                                s => panic!("Invalid character escape: {}", s),
-                            }
-                        );
-                        found_escape = false
-                    } else {
-                        match tokenizer.peek().unwrap() {
-                            &'\\' => {
-                                tokenizer.next();
-                                found_escape = true
-                            },
-                            &'\'' => break,
-                            _ => string.push(tokenizer.next().unwrap()),
+            if raw_marker {
+                if tokenizer.peek().unwrap() == &'"' {
+                    break
+                }
+                string.push(tokenizer.next().unwrap())
+            } else {
+                if found_escape {
+                    string.push(
+                        match tokenizer.next().unwrap() {
+                            c @ '\\' | c @ '\'' | c @ '"' => c,
+                            'n' => '\n',
+                            'r' => '\r',
+                            't' => '\t',
+                            s => panic!("Invalid character escape: {}", s),
                         }
+                    );
+                    found_escape = false
+                } else {
+                    match tokenizer.peek().unwrap() {
+                        &'\\' => {
+                            tokenizer.next();
+                            found_escape = true
+                        },
+                        &c if &c == &delimeter.unwrap() => break,
+                        _ => string.push(tokenizer.next().unwrap()),
                     }
                 }
             }
@@ -163,7 +167,7 @@ impl Matcher for StringLiteralMatcher {
                 if string.len() == 1 {
                     token!(tokenizer, CharLiteral, string)
                 } else {
-                    token!(tokenizer, StringLiteral, string)
+                    panic!("Invalid char literal")
                 }
             },
         }
