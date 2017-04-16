@@ -80,27 +80,31 @@ pub struct FloatLiteralMatcher {}
 
 impl Matcher for FloatLiteralMatcher {
     fn try_match(&self, tokenizer: &mut Tokenizer) -> Option<Token> {
-        let mut float = String::new();
+        let mut accum = String::new();
         let curr = tokenizer.next().unwrap();
         if curr.is_digit(10) {
-            float.push(curr)
+            accum.push(curr)
         } else if curr == '.' {
-            float.push_str("0.")
+            accum.push_str("0.")
         } else {
             return None;
         }
         while !tokenizer.end() {
             let current = *tokenizer.peek().unwrap();
-            if !current.is_whitespace() && current.is_digit(10) {
-                float.push(tokenizer.next().unwrap());
+            if !current.is_whitespace() && current.is_digit(10) || current == '.' {
+                if current == '.' && accum.contains('.') {
+                    panic!("Unexpected decimal point")
+                }
+
+                accum.push(tokenizer.next().unwrap());
             } else {
-                break;
+                break
             }
         }
-        if !float.is_empty() {
-            token!(tokenizer, FloatLiteral, float)
+        if accum.contains('.') {
+            token!(tokenizer, FloatLiteral, accum)
         } else {
-            None
+            token!(tokenizer, IntLiteral, accum)
         }
     }
 }

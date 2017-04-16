@@ -29,7 +29,7 @@ let f = 0.1337
 
     let mut data2 = r#"
 outer_block
-    let a = .12
+    let a = 1.12
     let b = r"raw string in block"
     inner_block
         let char = '\n'
