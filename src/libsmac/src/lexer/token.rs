@@ -13,6 +13,7 @@ pub enum TokenType {
     Whitespace,
     StringLiteral,
     CharLiteral,
+    BooleanLiteral,
     LiteralStringLiteral,
     EOF,
 }
