@@ -3,6 +3,7 @@ use std::fmt;
 /// Represents the type of a token
 #[derive(Debug, Clone, PartialEq)]
 pub enum TokenType {
+    Block(Vec<Token>),
     IntLiteral,
     FloatLiteral,
     Keyword,
@@ -48,7 +49,7 @@ impl fmt::Display for TokenPosition {
 }
 
 /// Token representation
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Token {
     token_type: TokenType,
     position: TokenPosition,

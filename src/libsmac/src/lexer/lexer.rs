@@ -1,6 +1,8 @@
 use lexer::Tokenizer;
 use lexer::matcher::*;
-use lexer::token::{Token, TokenType};
+use lexer::token::{Token, TokenType, TokenPosition};
+use lexer::block_tree::{Branch, Chunk, ChunkValue};
+
 use std::str::Chars;
 
 pub fn grab_smaragdine_lexer(data: &mut Chars) -> Lexer {
@@ -64,6 +66,42 @@ pub fn grab_smaragdine_lexer(data: &mut Chars) -> Lexer {
     lexer.matchers_mut().push(Box::new(matcher_symbol));
 
     lexer
+}
+
+pub fn lex_branch(branch: &Branch) -> Branch {
+    let mut lexed_branch = Branch::new(Vec::new());
+
+    for c in branch.value.iter() {
+        match c.value() {
+            &ChunkValue::Source(ref s) => {
+                let chunk = ChunkValue::Tokens(grab_smaragdine_lexer(&mut s.clone().chars()).collect());
+                lexed_branch.value.push(Chunk::new(chunk))
+            },
+
+            &ChunkValue::Block(ref b) => {
+                let chunk = ChunkValue::Block(lex_branch(&b));
+                lexed_branch.value.push(Chunk::new(chunk))
+            },
+
+            _ => (),
+        }
+    }
+
+    lexed_branch
+}
+
+pub fn flatten_branch(branch: &Branch) -> Vec<Token> {
+    let mut flat = Vec::new();
+
+    for c in branch.value.iter() {
+        match c.value() {
+            &ChunkValue::Tokens(ref t) => flat.append(&mut t.clone()),
+            &ChunkValue::Block(ref b)  => flat.push(Token::new(TokenType::Block(flatten_branch(b)), TokenPosition::new(0, 0), "".to_string())),
+            _ => continue,
+        }
+    }
+
+    flat
 }
 
 pub struct Lexer {
