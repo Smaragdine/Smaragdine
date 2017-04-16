@@ -58,6 +58,7 @@ pub fn grab_smaragdine_lexer(data: &mut Chars) -> Lexer {
     lexer.matchers_mut().push(Box::new(matcher_int_literal));
     lexer.matchers_mut().push(Box::new(matcher_float_literal));
     lexer.matchers_mut().push(Box::new(matcher_string_literal));
+    lexer.matchers_mut().push(Box::new(matcher_keyword));
     lexer.matchers_mut().push(Box::new(matcher_identifier));
     lexer.matchers_mut().push(Box::new(matcher_operator));
     lexer.matchers_mut().push(Box::new(matcher_symbol));
