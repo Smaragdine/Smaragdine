@@ -1,6 +1,8 @@
 use lexer::Tokenizer;
 use lexer::matcher::*;
-use lexer::token::{Token, TokenType};
+use lexer::token::{Token, TokenType, TokenPosition};
+use lexer::block_tree::{Branch, Chunk, ChunkValue};
+
 use std::str::Chars;
 
 pub fn grab_smaragdine_lexer(data: &mut Chars) -> Lexer {
@@ -12,6 +14,7 @@ pub fn grab_smaragdine_lexer(data: &mut Chars) -> Lexer {
         ")",
         "[",
         "]",
+        "->",
     ].iter().map(|&x| x.to_string()).collect();
 
     let operators = vec![
@@ -38,8 +41,15 @@ pub fn grab_smaragdine_lexer(data: &mut Chars) -> Lexer {
         ,":"  // type hint
     ].iter().map(|&x| x.to_string()).collect();
 
+    let keywords = vec![
+        "let",
+        "if",
+        "else",
+    ].iter().map(|&x| x.to_string()).collect();
+
     let matcher_symbol         = ConstantMatcher::new(TokenType::Symbol, symbols);
     let matcher_operator       = ConstantMatcher::new(TokenType::Operator, operators);
+    let matcher_keyword        = ConstantMatcher::new(TokenType::Keyword, keywords);
     let matcher_whitespace     = WhitespaceMatcher {};
     let matcher_int_literal    = IntLiteralMatcher {};
     let matcher_float_literal  = FloatLiteralMatcher {};
@@ -47,14 +57,51 @@ pub fn grab_smaragdine_lexer(data: &mut Chars) -> Lexer {
     let matcher_string_literal = StringLiteralMatcher {};
 
     lexer.matchers_mut().push(Box::new(matcher_whitespace));
-    lexer.matchers_mut().push(Box::new(matcher_int_literal));
     lexer.matchers_mut().push(Box::new(matcher_float_literal));
+    lexer.matchers_mut().push(Box::new(matcher_int_literal));
     lexer.matchers_mut().push(Box::new(matcher_string_literal));
+    lexer.matchers_mut().push(Box::new(matcher_keyword));
     lexer.matchers_mut().push(Box::new(matcher_identifier));
     lexer.matchers_mut().push(Box::new(matcher_operator));
     lexer.matchers_mut().push(Box::new(matcher_symbol));
 
     lexer
+}
+
+pub fn lex_branch(branch: &Branch) -> Branch {
+    let mut lexed_branch = Branch::new(Vec::new());
+
+    for c in branch.value.iter() {
+        match c.value() {
+            &ChunkValue::Source(ref s) => {
+                let chunk = ChunkValue::Tokens(grab_smaragdine_lexer(&mut s.clone().chars()).collect());
+                lexed_branch.value.push(Chunk::new(chunk))
+            },
+
+            &ChunkValue::Block(ref b) => {
+                let chunk = ChunkValue::Block(lex_branch(&b));
+                lexed_branch.value.push(Chunk::new(chunk))
+            },
+
+            _ => (),
+        }
+    }
+
+    lexed_branch
+}
+
+pub fn flatten_branch(branch: &Branch) -> Vec<Token> {
+    let mut flat = Vec::new();
+
+    for c in branch.value.iter() {
+        match c.value() {
+            &ChunkValue::Tokens(ref t) => flat.append(&mut t.clone()),
+            &ChunkValue::Block(ref b)  => flat.push(Token::new(TokenType::Block(flatten_branch(b)), TokenPosition::new(0, 0), "".to_string())),
+            _ => continue,
+        }
+    }
+
+    flat
 }
 
 pub struct Lexer {
