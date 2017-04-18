@@ -27,8 +27,8 @@ identifier         = char_ascii { char_ascii | digit | '_' | '!' | '?' }
 
 (* literals *)
 literal_integer    = [ '0' ( 'x' | 'b' ) ] { digit }
-literal_float      = ( { digit } '.' { digit } )
-                   | ( '.' { digit } )
+literal_float      = ( { digit } '.' digit { digit } )
+                   | ( '.' digit { digit } )
 literal_char       = "'" char "'"
 literal_string     = '"' [ { char } ] '"'
 literal_raw_string = 'r' literal_string
