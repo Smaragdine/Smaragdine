@@ -11,13 +11,19 @@ mod tests {
     use std::iter::Iterator;
 
     macro_rules! match_seq {
-        (src: $src:expr $(, $ttype:path => $tvalue:expr)*) => {{
-            let mut lexer = grab_smaragdine_lexer(&mut format!("{}", $src).chars());
-            match_seq!(lex: lexer $(, $ttype => $tvalue)*);
+        (list src: $src:expr, $ttype:path => [ $($tvalue:expr),+, ]) => {{
+            match_seq!(src: $src $(, $ttype => $tvalue)+);
         }};
-        (lex: $lex:expr $(, $ttype:path => $tvalue:expr)*) => {{
+        (list lex: $lex:expr, $ttype:path => [ $($tvalue:expr),+, ]) => {{
+            match_seq!(lex: $lex $(, $ttype => $tvalue)+);
+        }};
+        (src: $src:expr $(, $ttype:path => $tvalue:expr)+) => {{
+            let mut lexer = grab_smaragdine_lexer(&mut format!("{}", $src).chars());
+            match_seq!(lex: lexer $(, $ttype => $tvalue)+);
+        }};
+        (lex: $lex:expr $(, $ttype:path => $tvalue:expr)+) => {{
             let mut lexer = &mut $lex as &mut Lexer;
-            $(match_seq!(inner: lexer, $ttype => $tvalue);)*
+            $(match_seq!(inner: lexer, $ttype => $tvalue);)+
         }};
         (inner: $lex:expr, $ttype:path => $tvalue:expr) => {{
             let mut lexer = &mut $lex as &mut Lexer;
@@ -36,25 +42,26 @@ mod tests {
     #[test]
     fn lex_integer_decimal() {
         match_seq!(
-            src: indoc!("
+            list src: indoc!("
                 0
                 12
                 1234
                 8765
                 192843718371235601
-            "),
-            TokenType::IntLiteral => 0,
-            TokenType::IntLiteral => 12,
-            TokenType::IntLiteral => 1234,
-            TokenType::IntLiteral => 8765,
-            TokenType::IntLiteral => 192843718371235601_u64
+            "), TokenType::IntLiteral => [
+                0,
+                12,
+                1234,
+                8765,
+                192843718371235601_u64,
+            ]
         );
     }
 
     #[test]
     fn lex_integer_hexadecimal() {
         match_seq!(
-            src: indoc!("
+            list src: indoc!("
                 0x0
                 0xFF
                 0x1234
@@ -62,14 +69,15 @@ mod tests {
                 0xA00000
                 0xABCDEF
                 0xFFFFFF
-            "),
-            TokenType::IntLiteral => 0x0,
-            TokenType::IntLiteral => 0xFF,
-            TokenType::IntLiteral => 0x1234,
-            TokenType::IntLiteral => 0x00000A,
-            TokenType::IntLiteral => 0xA00000,
-            TokenType::IntLiteral => 0xABCDEF,
-            TokenType::IntLiteral => 0xFFFFFF
+            "), TokenType::IntLiteral => [
+                0x0,
+                0xFF,
+                0x1234,
+                0x00000A,
+                0xA00000,
+                0xABCDEF,
+                0xFFFFFF,
+            ]
         )
     }
 
@@ -83,13 +91,14 @@ mod tests {
                 0b0101
                 0b1111
                 0b10101010
-            "),
-            TokenType::IntLiteral => 0b0,
-            TokenType::IntLiteral => 0b0000,
-            TokenType::IntLiteral => 0b1010,
-            TokenType::IntLiteral => 0b0101,
-            TokenType::IntLiteral => 0b1111,
-            TokenType::IntLiteral => 0b10101010
+            "), TokenType::IntLiteral => [
+                0b0,
+                0b0000,
+                0b1010,
+                0b0101,
+                0b1111,
+                0b10101010,
+            ]
         )
     }
 }
