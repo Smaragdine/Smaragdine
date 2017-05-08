@@ -6,6 +6,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "indoc"
+version = "0.1.15"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+dependencies = [
+ "unindent 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
 name = "libsmac"
 version = "0.0.0"
+dependencies = [
+ "indoc 0.1.15 (registry+https://github.com/rust-lang/crates.io-index)",
+]
 
+[[package]]
+name = "unindent"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[metadata]
+"checksum indoc 0.1.15 (registry+https://github.com/rust-lang/crates.io-index)" = "3f27bf75921c826099cbc67ecf199b54ed2ce6b8ec86fb223e4bb17e1cd807c9"
+"checksum unindent 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)" = "3508be0ce1bacc38d579b69bffb4b8d469f5af0c388ff4890b2b294e61671ffe"

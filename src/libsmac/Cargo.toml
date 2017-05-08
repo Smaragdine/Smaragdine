@@ -2,3 +2,6 @@
 authors = ["The Smaragdine Project Developers"]
 name = "libsmac"
 version = "0.0.0"
+
+[dependencies]
+indoc = "^0.1"
