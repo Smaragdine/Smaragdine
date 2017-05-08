@@ -41,6 +41,8 @@ pub struct IntLiteralMatcher {}
 impl Matcher for IntLiteralMatcher {
     fn try_match(&self, tokenizer: &mut Tokenizer) -> Option<Token> {
         let mut accum = String::new();
+        let negative = tokenizer.peek() == Some(&'-');
+        if negative { tokenizer.advance(1) };
         let base = match tokenizer.peek().unwrap() {
             &'0' => {
                 match tokenizer.peek_n(1) {
@@ -64,9 +66,16 @@ impl Matcher for IntLiteralMatcher {
         }
         if !accum.is_empty() {
             // Produce token as base-10 string
-            let literal: String = match u64::from_str_radix(accum.as_str(), base) {
-                Ok(result) => result.to_string(),
-                Err(error) => panic!("Unable to parse integer literal: {}", error)
+            let literal: String = if negative {
+                match i64::from_str_radix(accum.as_str(), base) {
+                    Ok(result) => format!("-{}", result),
+                    Err(error) => panic!("Unable to parse integer literal: {}", error)
+                }
+            } else {
+                match u64::from_str_radix(accum.as_str(), base) {
+                    Ok(result) => result.to_string(),
+                    Err(error) => panic!("Unable to parse integer literal: {}", error)
+                }
             };
             token!(tokenizer, IntLiteral, literal)
         } else {

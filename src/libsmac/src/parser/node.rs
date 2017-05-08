@@ -2,8 +2,8 @@
 pub enum NodeType {
     StringLiteral(String),
     CharLiteral(char),
-    IntLiteral(i32),
-    FloatLiteral(f32),
+    IntLiteral(u64, bool /* signed */),
+    FloatLiteral(f64),
     BooleanLiteral(bool),
 }
 

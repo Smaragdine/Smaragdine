@@ -25,12 +25,16 @@ impl Matcher for LiteralMatcher {
             },
             &TokenType::IntLiteral => {
                 nodizer.next();
-                let value = token.content().parse::<i32>().unwrap();
-                Some(Node::new(NodeType::IntLiteral(value)))
+                let signed = token.content().starts_with("-");
+                let value = match signed {
+                    true => token.content().parse::<i64>().unwrap() as u64,
+                    false => token.content().parse::<u64>().unwrap(),
+                };
+                Some(Node::new(NodeType::IntLiteral(value, signed)))
             },
             &TokenType::FloatLiteral => {
                 nodizer.next();
-                let value = token.content().parse::<f32>().unwrap();
+                let value = token.content().parse::<f64>().unwrap();
                 Some(Node::new(NodeType::FloatLiteral(value)))
             },
             &TokenType::BooleanLiteral => {
