@@ -104,7 +104,7 @@ impl Matcher for FloatLiteralMatcher {
         if accum.contains('.') {
             token!(tokenizer, FloatLiteral, accum)
         } else {
-            token!(tokenizer, IntLiteral, accum)
+            None
         }
     }
 }

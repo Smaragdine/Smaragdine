@@ -55,22 +55,19 @@ impl Tokenizer {
     }
 
     pub fn peek(&self) -> Option<&char> {
-        if self.end() {
-            return None;
-        }
-        Some(&self.items[self.index])
+        self.peek_n(0)
     }
 
     pub fn peek_n(&self, n: usize) -> Option<&char> {
         if self.end_n(n) {
-            return None;
+            return None
         }
         Some(&self.items[self.index + n])
     }
 
     pub fn read(&mut self) -> Option<&char> {
         if self.end() {
-            return None;
+            return None
         }
         self.advance(1);
         Some(&self.items[self.index - 1])
