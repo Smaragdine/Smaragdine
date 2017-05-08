@@ -34,7 +34,7 @@ mod tests {
     }
 
     #[test]
-    fn lex_single_integer_basic() {
+    fn lex_integer_decimal() {
         match_seq!(
             src: indoc!("
                 0
@@ -52,7 +52,7 @@ mod tests {
     }
 
     #[test]
-    fn lex_single_integer_hex() {
+    fn lex_integer_hexadecimal() {
         match_seq!(
             src: indoc!("
                 0x0
@@ -68,7 +68,28 @@ mod tests {
             TokenType::IntLiteral => 0x1234,
             TokenType::IntLiteral => 0x00000A,
             TokenType::IntLiteral => 0xA00000,
+            TokenType::IntLiteral => 0xABCDEF,
             TokenType::IntLiteral => 0xFFFFFF
+        )
+    }
+
+    #[test]
+    fn lex_integer_binary() {
+        match_seq!(
+            src: indoc!("
+                0b0
+                0b0000
+                0b1010
+                0b0101
+                0b1111
+                0b10101010
+            "),
+            TokenType::IntLiteral => 0b0,
+            TokenType::IntLiteral => 0b0000,
+            TokenType::IntLiteral => 0b1010,
+            TokenType::IntLiteral => 0b0101,
+            TokenType::IntLiteral => 0b1111,
+            TokenType::IntLiteral => 0b10101010
         )
     }
 }
