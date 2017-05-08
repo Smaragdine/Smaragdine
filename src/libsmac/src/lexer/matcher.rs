@@ -126,7 +126,7 @@ impl Matcher for StringLiteralMatcher {
             },
             _ => return None,
         };
-        tokenizer.advance(1); // Skips the opening delimeter
+        tokenizer.advance(1); // Skips the opening delimiter
         let mut string       = String::new();
         let mut found_escape = false;
         loop {
