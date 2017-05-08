@@ -84,7 +84,7 @@ mod tests {
     #[test]
     fn lex_integer_binary() {
         match_seq!(
-            src: indoc!("
+            list src: indoc!("
                 0b0
                 0b0000
                 0b1010
@@ -98,6 +98,27 @@ mod tests {
                 0b0101,
                 0b1111,
                 0b10101010,
+            ]
+        )
+    }
+
+    #[test]
+    fn lex_float() {
+        match_seq!(
+            list src: indoc!("
+                0.0
+                0.
+                .0
+                .86
+                1.0
+                3.141592653
+            "), TokenType::FloatLiteral => [
+                "0.0",
+                "0.0",
+                "0.0",
+                "0.86",
+                "1.0",
+                "3.141592653",
             ]
         )
     }
